@@ -1,7 +1,14 @@
+
+/*
+    Bennet, T. (2021). CIS 505 Intermediate Java Programming. Bellevue University
+*/
 public class BennetHelloWorld {
-    private static String FIRST_NAME = "Tyler";
-    private static String LAST_NAME = "Bennet";
+
+    // Global Variables
+    private static String gFirstName = "Tyler";
+    private static String gLastName = "Bennet";
+
     public static void main(String[] args) {
-        System.out.printf("%s %s", FIRST_NAME, LAST_NAME);
-    }
-}
+        System.out.printf("%s %s", gFirstName, gLastName); // Returns the global values to print to the console.
+    } //end main
+} //end BennetHelloWorld
