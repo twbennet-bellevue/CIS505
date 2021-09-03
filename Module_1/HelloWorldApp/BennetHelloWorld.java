@@ -4,7 +4,7 @@
 */
 public class BennetHelloWorld {
 
-    // Global Variables
+    // Global Class Variables
     private static String gFirstName = "Tyler";
     private static String gLastName = "Bennet";
 
