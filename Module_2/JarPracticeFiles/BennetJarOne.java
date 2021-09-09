@@ -5,4 +5,7 @@ package Module_2.JarPracticeFiles;
 
 public class BennetJarOne {
     
+    public static void main(String[] args){
+        System.out.println("Bennet Jar One File");
+    }
 }

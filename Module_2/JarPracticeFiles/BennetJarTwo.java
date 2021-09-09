@@ -4,5 +4,9 @@
 package Module_2.JarPracticeFiles;
 
 public class BennetJarTwo {
+
+    public static void main(String[] args){
+        System.out.println("Bennet Jar Two File");
+    }
     
 }
