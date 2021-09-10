@@ -2,7 +2,7 @@
     Bennet, T. (2021). CIS 505 Intermediate Java Programming. Bellevue University
 */
 
-package FanApp;
+package Module_1.FanApp;
 
 public class Fan {
 
