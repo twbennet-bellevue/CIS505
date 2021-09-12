@@ -12,13 +12,13 @@ public class TestSportsTeamApp {
     public static void main(String[] args){
         Scanner userInput = new Scanner(System.in);
 
-        programEntryMessage();
+        programEntryMessage(); //Present the program entry to the user interface
 
         while (true) {
             Team teamA = new Team();
-            promptTeamName(userInput, teamA);
-            promptPlayerName(userInput, teamA);
-            summaryResults(userInput, teamA);
+            promptTeamName(userInput, teamA); // Prompt the user for the team name.
+            promptPlayerName(userInput, teamA); // Prompt the user for the player names.
+            summaryResults(userInput, teamA); // Output the results to the user
             
             if (continueMessage(userInput) == "n") {
                 break;
@@ -27,11 +27,19 @@ public class TestSportsTeamApp {
 
     }
 
+    /**
+     * Welcome message method
+     */
     private static void programEntryMessage() {
         System.out.println(MESSAGE_SPACING + "Welcome to the Sports Team App.");
         System.out.print(NEW_LINE_SPACING);
     }
     
+    /**
+     * Prompts the user for a team name.
+     * @param objIn
+     * @param teamIn
+     */
     private static void promptTeamName(Scanner objIn, Team teamIn) {
         System.out.print(MESSAGE_SPACING + "Enter a team name: ");
 
@@ -44,6 +52,11 @@ public class TestSportsTeamApp {
         }
     }
 
+    /**
+     * Prompts the user for the player names.
+     * @param objIn
+     * @param teamIn
+     */
     private static void promptPlayerName(Scanner objIn, Team teamIn) {
         System.out.println(MESSAGE_SPACING + "Enter the player names: ");
         System.out.print(MESSAGE_SPACING + "  hint: use commas for multiple players; no spaces>: ");
@@ -65,6 +78,11 @@ public class TestSportsTeamApp {
         System.out.print(NEW_LINE_SPACING);
     }
 
+    /**
+     * Prints out the summary results.
+     * @param objIn
+     * @param teamIn
+     */
     private static void summaryResults(Scanner objIn, Team teamIn) {
         System.out.println(MESSAGE_SPACING + "--Team Summary--");
         System.out.println(MESSAGE_SPACING + "Number of players in team: " + teamIn.getPlayerCount());
@@ -89,6 +107,11 @@ public class TestSportsTeamApp {
         System.out.print(NEW_LINE_SPACING);
     }
 
+    /**
+     * Prompt user to continue or not.
+     * @param objIn
+     * @return
+     */
     private static String continueMessage(Scanner objIn) {
         String promptContinue;
         while (true) {
