@@ -4,9 +4,18 @@
 
 package Module_3.CustomerAccountApp;
 
+/**
+ * CustomerDB Class
+ * Maintains the DB Records for this project.
+ */
 public class CustomerDB {
     
-    public static Customer getCustomer(int id) {
+    /**
+     * Static Constructor getCustomer
+     * @param id Integer wrapper
+     * @return Customer object
+     */
+    public static Customer getCustomer(Integer id) {
 
         Customer newCustomerObj = new Customer();
 

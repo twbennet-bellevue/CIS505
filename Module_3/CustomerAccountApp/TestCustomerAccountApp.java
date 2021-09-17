@@ -6,34 +6,37 @@ package Module_3.CustomerAccountApp;
 
 import java.util.Scanner;
 
+/**
+ * TestCustomerAccountApp - Program Entry Class
+ */
 public class TestCustomerAccountApp {
 
+    // private static global strings
     private static String MESSAGE_SPACING = "       ";
     private static String NEW_LINE_SPACING = "\n";
 
  
     public static void main(String[] args) {
         Scanner userInput = new Scanner(System.in);
-        Account userAccount = new Account();
         boolean programLoop = true;
 
         programEntryMessage(); //Present the program entry to the user interface
         
         do {
+            Account userAccount = new Account();
             Customer gCurrentCustomer = promptCustomerId(userInput); //Prompts the user for a valid user ID.
 
             System.out.print(NEW_LINE_SPACING);
 
-            userAccount.displayMenu();
-            userAccount = promptAccountAction(userInput, userAccount);
+            userAccount.displayMenu(); //Displays the menu to the user
+            userAccount = promptAccountAction(userInput, userAccount); //Prompt the user for account actions
 
             System.out.print(NEW_LINE_SPACING);
-
             System.out.println(gCurrentCustomer.toString());
-
             System.out.printf(MESSAGE_SPACING + "Account Balance: " + "$%,6.2f", userAccount.getBalance());
             System.out.println(NEW_LINE_SPACING);
-            programLoop = programContinueLoop(userInput);
+
+            programLoop = programContinueLoop(userInput); //Loop Decision for Continuing or exiting
 
         } while (programLoop);
         
@@ -48,9 +51,9 @@ public class TestCustomerAccountApp {
     }
 
     /**
-     * 
-     * @param objIn
-     * @return
+     * Prompt the user for a Customer ID to lookup.
+     * @param objIn Scanner
+     * @return Customer object
      */
     private static Customer promptCustomerId(Scanner objIn) {
         Customer customerDetails = new Customer();
@@ -64,7 +67,6 @@ public class TestCustomerAccountApp {
     
             customerId = objIn.nextInt();
             System.out.println(customerId);
-            //break;
 
             switch (customerId) {
                 case 1007: 
@@ -80,7 +82,8 @@ public class TestCustomerAccountApp {
                     customerIdFlag = false;
                     break;
                 default: 
-                    System.out.println(MESSAGE_SPACING + "Error: Invalid Option");
+                    customerDetails = new Customer(); 
+                    customerIdFlag = false;
                     break;
             }
         }
@@ -89,9 +92,9 @@ public class TestCustomerAccountApp {
     }
 
     /**
-     * 
-     * @param objIn
-     * @return
+     * Prompt Account Actions from user
+     * @param objIn Scanner
+     * @return Account object
      */
     private static Account promptAccountAction(Scanner objIn, Account accountIn) {
         String userInput = "";
@@ -112,6 +115,11 @@ public class TestCustomerAccountApp {
         return accountIn;
     }
 
+    /**
+     * Program Continue Loop 
+     * @param objIn Scanner
+     * @return boolean
+     */
     private static boolean programContinueLoop(Scanner objIn) {
         boolean programLoopFlag = true;
         boolean continueLoopId = true;
@@ -133,9 +141,9 @@ public class TestCustomerAccountApp {
     }
 
     /**
-     * 
-     * @param objIn
-     * @param accountIn
+     * Deposit Money
+     * @param objIn Scanner
+     * @param accountIn Account
      */
     private static void deposit(Scanner objIn, Account accountIn) {
         System.out.print(MESSAGE_SPACING + "Enter deposit amount: ");
@@ -144,9 +152,9 @@ public class TestCustomerAccountApp {
     }
 
     /**
-     * 
-     * @param objIn
-     * @param accountIn
+     * Withdraw Money
+     * @param objIn Scanner
+     * @param accountIn Account
      */
     private static void withdraw(Scanner objIn, Account accountIn) {
         System.out.println(MESSAGE_SPACING + "Enter withdraw amount: ");
@@ -156,8 +164,8 @@ public class TestCustomerAccountApp {
     }
 
     /**
-     * 
-     * @param accountIn
+     * Get Balance
+     * @param accountIn Account
      */
     private static void getBalance(Account accountIn) {
         System.out.printf(MESSAGE_SPACING + "Balance as of " + accountIn.getTransactionDate() + " is " + "$%,6.2f", accountIn.getBalance());

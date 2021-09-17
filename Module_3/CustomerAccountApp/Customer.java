@@ -5,13 +5,15 @@
 package Module_3.CustomerAccountApp;
 
 /**
- * 
+ * Customer Class
  */
 public class Customer {
 
+    // private static global variables
     private static String MESSAGE_SPACING = "       ";
     private static String NEW_LINE_SPACING = "\n";
 
+    // private global variables
     private String gName;
     private String gAddress;
     private String gCity;
@@ -21,18 +23,18 @@ public class Customer {
      * Default Constructor
      */
     public Customer() {
-        this.gName = "";
-        this.gAddress = "";
-        this.gCity = "";
-        this.gZip = "";
+        this.gName = "Default Name";
+        this.gAddress = "Default Address";
+        this.gCity = "Default City";
+        this.gZip = "00000";
     }
 
     /**
      * 4 Argument Constructor to build a custom customer.
-     * @param gName
-     * @param gAddress
-     * @param gCity
-     * @param gZip
+     * @param gName String
+     * @param gAddress String
+     * @param gCity String
+     * @param gZip String
      */
     public Customer(String gName, String gAddress, String gCity, String gZip) {
         this.gName = gName;
