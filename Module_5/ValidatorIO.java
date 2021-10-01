@@ -4,7 +4,6 @@ import java.util.Scanner;
 
 public class ValidatorIO {
 
-
     public static String getString(Scanner sc, String prompt) {
         String input = "";
         boolean isValid = false;
