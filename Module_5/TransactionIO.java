@@ -1,3 +1,7 @@
+/*
+    Bennet, T. (2021). CIS 505 Intermediate Java Programming. Bellevue University
+*/
+
 package Module_5;
 
 import java.io.File;
@@ -9,10 +13,15 @@ import java.util.Scanner;
 
 public class TransactionIO {
 
+    //private static global variables
     private static String FILE_NAME = "expenses.txt";
-
     private static File gFile = new File(FILE_NAME);
 
+    /**
+     * Find All Transactions from file
+     * @return ArrayList<Transaction> 
+     * @throws IOException
+     */
     public static ArrayList<Transaction> findAll() throws IOException {
         //open expenses.txt file, iterate through each line, and return an arraylist of transactions
         //Invoke Scanner input = new Scanner(file) 
@@ -39,7 +48,7 @@ public class TransactionIO {
                 transaction.setDate(date);
                 transaction.setDescription(description);
                 transaction.setAmount(Double.parseDouble(amount));
-                
+
                 transactionList.add(transaction);
             }            
         }
@@ -47,6 +56,11 @@ public class TransactionIO {
         return transactionList;
     }
 
+    /**
+     * Bulk Inserts values
+     * @param transactions ArrayList<Transaction>
+     * @throws IOException
+     */
     public static void bulkInsert(ArrayList<Transaction> transactions) throws IOException {
         PrintWriter output = null;
 
