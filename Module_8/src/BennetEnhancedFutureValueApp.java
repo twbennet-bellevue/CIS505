@@ -138,6 +138,10 @@ public class BennetEnhancedFutureValueApp extends Application{
         updateCalculationDate();
     }
 
+    /**
+     * Updates the Calculation Date using a standard date format.
+     * Prints the updated value to the Label.
+     */
     private void updateCalculationDate() {
         DateTimeFormatter dateformatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         LocalDateTime now = LocalDateTime.now();
