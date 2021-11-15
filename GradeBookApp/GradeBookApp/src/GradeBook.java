@@ -14,7 +14,7 @@ public class GradeBook {
         private String assignmentLabel = "";
         private String classLabel = "";
         private String gpaLabel = "";*/
-        String filePath = "C:/Users/tyler/Desktop/data/gradebook.csv";
+        String filePath = "C:/data/gradebook.csv";
 
         String result = ("\n" + className + "," + firstName + "," + lastName + "," + assignment + "," + gpa);
 

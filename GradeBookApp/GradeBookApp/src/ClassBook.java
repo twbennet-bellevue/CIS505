@@ -19,7 +19,7 @@ public class ClassBook {
 
     public void importClassBook() {
 
-        String filePath = "C:/Users/tyler/Desktop/data/ClassBook.csv";
+        String filePath = "C:/data/classbook.csv";
         //import csv, line by line
 
         
@@ -48,7 +48,7 @@ public class ClassBook {
 
     public void importGradeBook() {
 
-        String filePath = "C:/Users/tyler/Desktop/data/gradebook.csv";
+        String filePath = "C:/data/gradebook.csv";
         //import csv, line by line
         gradeBook = new ArrayList<Grade>();
         
@@ -191,7 +191,7 @@ public class ClassBook {
     }
 
     public void importStudents() {
-        String filePath = "C:/Users/tyler/Desktop/data/students.csv";
+        String filePath = "C:/data/students.csv";
 
         
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) 
