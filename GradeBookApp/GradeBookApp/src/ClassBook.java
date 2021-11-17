@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +22,10 @@ public class ClassBook {
     public void importClassBook() {
 
         String filePath = "C:/data/classbook.csv";
+        Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
+        //System.out.println(path.toAbsolutePath() + "\\GradeBookApp\\data\\classbook.csv");
         //import csv, line by line
+        filePath = (path.toAbsolutePath() + "\\GradeBookApp\\data\\classbook.csv");
 
         
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) 
@@ -31,7 +36,9 @@ public class ClassBook {
             {
                String[] instructorArray = line.split(",");
 
-               Instructor tempInstructors = new Instructor(instructorArray[0] + " " + instructorArray[1], instructorArray[2], instructorArray[3], instructorArray[4], instructorArray[5], instructorArray[6]);
+               String tempImagePath = path.toAbsolutePath() + "\\GradebookApp\\" + instructorArray[5];
+
+               Instructor tempInstructors = new Instructor(instructorArray[0] + " " + instructorArray[1], instructorArray[2], instructorArray[3], instructorArray[4], tempImagePath, instructorArray[6]);
                instructorList.add(tempInstructors);
                System.out.println("Instructor List " + tempInstructors.getContactEmail());
             }
@@ -49,6 +56,12 @@ public class ClassBook {
     public void importGradeBook() {
 
         String filePath = "C:/data/gradebook.csv";
+
+        Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
+        //System.out.println(path.toAbsolutePath() + "\\GradeBookApp\\data\\classbook.csv");
+        //import csv, line by line
+        filePath = (path.toAbsolutePath() + "\\GradeBookApp\\data\\gradebook.csv");
+
         //import csv, line by line
         gradeBook = new ArrayList<Grade>();
         
@@ -193,7 +206,9 @@ public class ClassBook {
     public void importStudents() {
         String filePath = "C:/data/students.csv";
 
-        
+        Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
+        filePath = (path.toAbsolutePath() + "\\GradeBookApp\\data\\students.csv");
+
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) 
         {
  
@@ -202,7 +217,8 @@ public class ClassBook {
             {
                String[] studentArray = line.split(",");
 
-               Student tempStudents = new Student(studentArray[0] + " " + studentArray[1], studentArray[2], studentArray[3], studentArray[4]);
+               String tempStudentPath = path.toAbsolutePath() + "\\GradeBookApp\\" + studentArray[4];
+               Student tempStudents = new Student(studentArray[0] + " " + studentArray[1], studentArray[2], studentArray[3], tempStudentPath);
                studentList.add(tempStudents);
                System.out.println(tempStudents.getContactEmail());
             }

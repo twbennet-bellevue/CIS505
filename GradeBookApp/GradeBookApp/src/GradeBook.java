@@ -1,6 +1,8 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 
 public class GradeBook {
 
@@ -15,6 +17,9 @@ public class GradeBook {
         private String classLabel = "";
         private String gpaLabel = "";*/
         String filePath = "C:/data/gradebook.csv";
+        Path path = FileSystems.getDefault().getPath("").toAbsolutePath();
+
+        filePath = (path.toAbsolutePath() + "\\GradeBookApp\\data\\gradebook.csv");
 
         String result = ("\n" + className + "," + firstName + "," + lastName + "," + assignment + "," + gpa);
 
