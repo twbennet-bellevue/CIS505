@@ -6,10 +6,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale.Category;
 import java.util.function.IntBinaryOperator;
 
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -29,10 +34,14 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
@@ -56,7 +65,7 @@ public class App extends Application {
     private Button btnGradeBook = new Button("GradeBook");
     private Button btnGradeBookOpen = new Button("Open Gradebook");
 
-    Button viewGradeBook = new Button("View GradeBook");
+    //Button btnViewGradeBook = new Button("View GradeBook");
     Button addGrade = new Button("Add Grade");
     Button editGrade = new Button("Edit Grade");
     Button saveGrade = new Button("Save Grade");
@@ -75,10 +84,36 @@ public class App extends Application {
     private Label lblBodyOption1 = new Label("-Students");
     private Label lblBodyOption2 = new Label("-Classes");
     private Label lblBodyOption3 = new Label("-Reports");
-    
+    private Label classes = new Label("Stats");
+    private Label gradeBookTitle = new Label ("");
+    private Button saveButton = new Button("SAVE");
+
+    private ComboBox student = new ComboBox();
+    TextField textAssignment = new TextField("");
+
+    private String studentLabel = "";
+    private String assignmentLabel = "";
+    private String classLabel = "";
+    private String gpaLabel = "";
+
+    private ComboBox comboBox = new ComboBox();
+    ComboBox gpaCombo = new ComboBox();
+
+    private ClassBook classBook = new ClassBook();
+    private List<String> allStudents;
+
+    private ListView listClassResults = new ListView();
+    private ListView classGrades = new ListView();
+    private BorderPane bp = new BorderPane();
+
 
     @Override
     public void start(Stage primaryStage){
+
+        classBook.importClassBook();
+        classBook.importStudents();
+        classBook.importGradeBook();
+        allStudents = classBook.getStudents();
 
         //build left grid
         //build main center page grid
@@ -132,7 +167,7 @@ public class App extends Application {
             public void handle(ActionEvent event){
                 studentSelected = listStudents.getSelectionModel().getSelectedItem().toString();
                 border.setCenter(null);
-                border.setCenter(buildStudentRecordBody());
+                border.setCenter(buildStudentRecordBody(studentSelected));
     
             }
         });
@@ -146,7 +181,6 @@ public class App extends Application {
     
             }
         });
-
         
         btnGradeBookOpen.setOnAction(new EventHandler<ActionEvent>(){
   
@@ -157,6 +191,44 @@ public class App extends Application {
                 classSelected = listClasses.getSelectionModel().getSelectedItem().toString();
                 border.setCenter(openGradeBookViewForm());
                 //DO STUFF
+    
+            }
+        });
+
+        saveButton.setOnAction(new EventHandler<ActionEvent>(){
+  
+            @Override
+            public void handle(ActionEvent event){
+                classSelected = listClasses.getSelectionModel().getSelectedItem().toString();
+                border.setCenter(null);
+                //border.setCenter(openClassInstanceForm());
+                //save the grade items
+                GradeBook saveBookItem = new GradeBook();
+                System.out.println("Targeted Student: " + student.getSelectionModel().getSelectedItem().toString());
+                
+                String[] name = student.getSelectionModel().getSelectedItem().toString().split("\\s+");
+                String gpaResult = "";
+
+                String gpaLabel = gpaCombo.getSelectionModel().getSelectedItem().toString();
+
+                switch (gpaLabel) {
+                    case "A": gpaResult = "1.0"; break;
+                    case "A-": gpaResult = ".92"; break;
+                    case "B+": gpaResult = ".89"; break;
+                    case "B": gpaResult = ".85"; break;
+                    case "B-": gpaResult = ".81"; break;
+                    case "C+": gpaResult = ".78"; break;
+                    case "C": gpaResult = ".75"; break;
+                    case "C-": gpaResult = ".71"; break;
+                    case "D": gpaResult = ".67"; break;
+                    case "F": gpaResult = ".65"; break;
+                }
+                System.out.println("CIS501-1" + name[0] + name[1] + " | Assignment " + textAssignment.getText().toString() + " | GPA Label : " + gpaResult);
+                //saveBookItem.SaveGrade(classLabel, name[0], name[1], assignmentLabel, gpaResult);
+                //saveBookItem.SaveGrade("CIS501-1", "Tony", "Stark", "Test", ".85");
+                saveBookItem.SaveGrade("CIS501-1", name[0], name[1], textAssignment.getText().toString(), gpaResult);
+
+                border.setCenter(openGradeBookViewForm());
     
             }
         });
@@ -179,7 +251,7 @@ public class App extends Application {
             public void handle(ActionEvent event){
                 //classSelected = listClasses.getSelectionModel().getSelectedItem().toString();
                 border.setCenter(null);
-                border.setCenter(buildReportSelected());
+                border.setCenter(buildReportSelected(comboBox.getSelectionModel().getSelectedItem().toString()));
     
             }
         });
@@ -201,10 +273,23 @@ public class App extends Application {
             public void handle(ActionEvent event){
                 border.setCenter(null);
                 border.setCenter(openGradeBookForm());
-    
+                
     
             }
         });
+
+        addGrade.setOnAction(new EventHandler<ActionEvent>(){
+  
+            @Override
+            public void handle(ActionEvent event){
+                border.setCenter(null);
+                //border.setCenter();
+                border.setCenter(openNewGradeForm());
+    
+            }
+        });
+
+        
 
         Scene scene = new Scene(border, 800, 600); // Builds the Scene
 
@@ -282,44 +367,102 @@ public class App extends Application {
         return vbox;
     }
 
-    public BorderPane buildReportSelected() {
+    private BorderPane addNewGrade() {
+
+        BorderPane bpGrade = new BorderPane();
+        VBox vbox = new VBox();
+
+
+
+        HBox classBox = new HBox();
+        HBox studentBox = new HBox();
+        HBox gpaBox = new HBox();
+        HBox assignmentBox = new HBox();
+
+        HBox bottom = new HBox();
+
+
+        Label labelStudentSelection = new Label("Select Student:");
+        Label labelStudent = new Label("Select Student: ");
+        Label gpaSelection = new Label("Select Letter Grade: ");
+        Label assignmentName = new Label("Assignment Name: ");
+
+
+        student = new ComboBox();
+        for (String listStudents : classBook.getStudentsByCourse(gradeBookTitle.getText())) {
+            student.getItems().add(listStudents);
+        }
+ 
+        gpaCombo = new ComboBox();
+
+        gpaCombo.getItems().add("A");
+        gpaCombo.getItems().add("A-");
+        gpaCombo.getItems().add("B+");
+        gpaCombo.getItems().add("B");
+        gpaCombo.getItems().add("B-");
+        gpaCombo.getItems().add("C+");
+        gpaCombo.getItems().add("C");
+        gpaCombo.getItems().add("C-");
+        gpaCombo.getItems().add("D");
+        gpaCombo.getItems().add("F");
+
+        studentBox.getChildren().addAll(labelStudent, student);
+        gpaBox.getChildren().addAll(gpaSelection, gpaCombo);
+        bottom.getChildren().addAll(saveButton);
+        assignmentBox.getChildren().addAll(assignmentName, textAssignment);
+
+        vbox.getChildren().addAll(classBox,studentBox,gpaBox,assignmentBox,bottom);
+        bp.setCenter(vbox);
+        
+        return bp;
+    }
+
+    public BorderPane buildReportSelected(String course) {
         BorderPane bp = new BorderPane();
-        String twoPointZero = "2.0";
-        String threePointZero = "3.0";
-        String fourPointZero = "4.0";
-        final NumberAxis xAxis = new NumberAxis(0, 4, .5);
-        final NumberAxis yAxis = new NumberAxis(0, 20, 1);        
-        final ScatterChart<Number,Number> sc = new ScatterChart<Number,Number>(xAxis,yAxis);
+
+        final CategoryAxis xAxis = new CategoryAxis();
+        final NumberAxis yAxis = new NumberAxis(0, 1, .25);        
+        final BarChart<String,Number> bc = new BarChart<String,Number>(xAxis,yAxis);
         xAxis.setLabel("GPA (Standard 4.0 Scale)");                
         yAxis.setLabel("Returns to date");
-        sc.setTitle("GPA Scatter Chart by Class");
+        bc.setTitle("GPA Bar Chart by Class");
+
+        //comboBox.getItems().add(classNames);
+        //get gpa results studdent, by gpa
+        List<Grade> tempGrades = classBook.findGradesForClass(course);
 
         XYChart.Series series1 = new XYChart.Series();
-        series1.setName("CIS501-1");
-        series1.getData().add(new XYChart.Data(4.0, 4.0));
-        series1.getData().add(new XYChart.Data(2.8, 2.8));
-        series1.getData().add(new XYChart.Data(6.2, 24.8));
-        series1.getData().add(new XYChart.Data(1, 14));
-        series1.getData().add(new XYChart.Data(1.2, 26.4));
-        series1.getData().add(new XYChart.Data(3.4, 3));
-        series1.getData().add(new XYChart.Data(2.9, 3));
-        series1.getData().add(new XYChart.Data(3.5, 1));
-        series1.getData().add(new XYChart.Data(3.6, 7));
-        series1.getData().add(new XYChart.Data(3.2, 12));
 
-        sc.getData().addAll(series1);
+        series1.setName(course);
+
+        for (Grade gradeList : tempGrades) {
+            series1.getData().add(new XYChart.Data(gradeList.getStudentName(), gradeList.getGrade()));
+        }
+
+        //series1.getData().add(new XYChart.Data(4.0, 4.0));
+        //series1.getData().add(new XYChart.Data(2.8, 2.8));
+        //series1.getData().add(new XYChart.Data(6.2, 24.8));
+        //series1.getData().add(new XYChart.Data(1, 14));
+        //series1.getData().add(new XYChart.Data(1.2, 26.4));
+        //series1.getData().add(new XYChart.Data(3.4, 3));
+        //series1.getData().add(new XYChart.Data(2.9, 3));
+        //series1.getData().add(new XYChart.Data(3.5, 1));
+        ///series1.getData().add(new XYChart.Data(3.6, 7));
+        //series1.getData().add(new XYChart.Data(3.2, 12));
+
+        bc.getData().addAll(series1);
         
-        xAxis.setLabel("GPA");       
-        yAxis.setLabel("Value");
+        xAxis.setLabel("Student");       
+        yAxis.setLabel("GPA");
 
-        bp.setCenter(sc);
+        bp.setCenter(bc);
 
         return bp;
     }
 
     
 
-    public BorderPane buildStudentPage() {
+    public BorderPane buildStudentPage(String studentIn) {
         Label title = new Label("Students");
         BorderPane bp = new BorderPane();
         bp.setCenter(buildAllClassBody());
@@ -344,23 +487,27 @@ public class App extends Application {
 
     
 
-    public BorderPane openStudentSelectedForm() {
+    public BorderPane openStudentSelectedForm(String studentName) {
+        Student studentIn = classBook.findStudent(studentName);
         Label lblStudentName = new Label("Student Name: ");
-        Label lblStudentNameData = new Label("John Doe");
+        Label lblStudentNameData = new Label(studentIn.getStudentName());
         Label lblContactNum = new Label("Contact #: ");
-        Label lblContactNumData = new Label("000-000-0000");
+        Label lblContactNumData = new Label(studentIn.getContactNumber());
         Label lblProgramName = new Label("Program");
         Label lblProgramNameData = new Label("Master of Science");
         Label lblEditInfo = new Label("Edit Info");
         Label lblClass = new Label("Class: " );
         Button btnEditInfo = new Button("Edit Class");
         Label lblContactEmail = new Label("Contact Email: ");
-        Label lblContactEmailData = new Label("john_doe@someuniversity.edu");
+        Label lblContactEmailData = new Label(studentIn.getContactEmail());
 
         BorderPane classHeader = new BorderPane();
         InputStream stream = null;
+        //classSelected = listClasses.getSelectionModel().getSelectedItem().toString();
+
         try {
-            stream = new FileInputStream("C:\\Bellevue-Development\\CIS505\\GradeBookApp\\images\\person-icon.png");
+            //stream = new FileInputStream("C:\\Bellevue-Development\\CIS505\\GradeBookApp\\images\\person-icon.png");
+            stream = new FileInputStream(studentIn.getImageUrl());
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -429,8 +576,10 @@ public class App extends Application {
 
         BorderPane bp = new BorderPane();
         bp.setTop(classHeader);
-        //bp.setCenter(buildClassBody());
-        bp.setCenter(buildStudentClassBody());
+
+        List<String> listOfClasses = classBook.findStudentClasses(studentName);
+
+        bp.setCenter(buildStudentClassBody(listOfClasses, studentSelected));
         //bp.setCenter(vbox);
 
         return bp;
@@ -440,46 +589,161 @@ public class App extends Application {
 
     }*/
 
-    public HBox buildStudentClassBody() {
-        HBox bodyView = new HBox();
+    public HBox buildGradeBookView(String course) {
+        List<String> gradeBook = new ArrayList<String>();
+        gradeBook = classBook.getClassAssignments(course);
 
-        bodyView = new HBox(buildStudentClassList(), buildStudentClassResults());
+        ListView view = new ListView();
+        
+        for (String element : gradeBook) {
+            view.getItems().add(element);
+            System.out.println("element: " + element);
+        }
+
+        HBox bodyView = new HBox(view);
+        bodyView.setMaxWidth(800);
+        view.setPrefWidth(800);
+        //bodyView.setBackground(new Background(new BackgroundFill(Color.WHITE,CornerRadii.EMPTY,Insets.EMPTY)));
+  
         return bodyView;
     }
 
-    public VBox buildStudentClassResults() {
+    public HBox buildStudentClassBody(List<String> classes, String student) {
+        HBox bodyView = new HBox();
+
+
+        bodyView = new HBox(buildStudentClassList(classes, student), buildStudentClassGrades(student));
+        return bodyView;
+    }
+
+    public VBox buildStudentClassResults(String course, String student) {
         VBox classList = new VBox();
 
-        ListView listClassResults = new ListView();
+        
 
-        Label classes = new Label("CIS505-1 - Class Statistics:");
+        //Label classes = new Label("CIS505-1 - Class Statistics:");
+        //import class statistic
+        //setClassResults(course, student);
 
- 
-        listClassResults.getItems().add("Class GPA (Average): 3.222");
-        listClassResults.getItems().add("Class GPA (High): 4.0");
-        listClassResults.getItems().add("Class GPA (Low): 2.8");
         listClassResults.setFocusTraversable(false);
-        listClassResults.setMouseTransparent(true);
+        //listClassResults.setMouseTransparent(true);
+        
 
+        //double gpaResult = classBook.getStudentGPACourse(studentSelected, course);
+
+        //listClassResults.getItems().add("Student Grade: " + gpaResult);
+        //listClassResults.getItems().add("Class GPA (Average): 3.222");
+        //listClassResults.getItems().add("Class GPA (High): 4.0");
+        //listClassResults.getItems().add("Class GPA (Low): 2.8");
+
+                
+        /*listClasses.getSelectionModel().selectedItemProperty().addListener(
+            new ChangeListener<String>() {
+                public void changed(ObservableValue<? extends String> observable, String oldvalue, String newValue) {
+                    System.out.println("selection changed");
+                    //buildStudentClassResults(listClasses.getSelectionModel().getSelectedItem().toString(), studentSelected);
+                    
+                    setClassResults(listClasses.getSelectionModel().getSelectedItem().toString(), studentSelected);
+                    
+            }
+        });*/
 
         classList = new VBox(classes, listClassResults);
 
         return classList;
     }
 
-    public VBox buildStudentClassList() {
+    public void setClassResults(String course, String student) {
+        /*System.out.println("Class Results changed");
+        System.out.println("Student " + studentSelected + " - course " + course + " grade:" + classBook.getStudentGPACourse(studentSelected, course));
+        classes.setText("Grades" + course);
+
+        String gpaResultStr = "";*/
+
+        /*if (gpaResult == -1.00) {
+            gpaResultStr = "N/A";
+        } else {
+            gpaResultStr = "" + gpaResult;
+        } 
+
+        //listClassResults = new ListView();
+        //listClassResultsIn.getSelectionModel().getSelectedItems().removeAll();
+        //listClassResultsIn.refresh();*/
+
+        //listClassResults.getSelectionModel().getSelectedItems().removeAll();
+        //listClassResults.getItems().add("Student Grade: " + 0.0);
+        //listClassResults.getItems().add("Class GPA (Average): 3.222");
+        //listClassResults.getItems().add("Class GPA (High): 4.0");
+        //listClassResults.getItems().add("Class GPA (Low): 2.8");
+        //.refresh();
+    }
+
+    public VBox buildStudentClassGrades(String student) {
         VBox classList = new VBox();
 
-        ListView listClasses = new ListView();
+        //import studentName
+
+        classGrades = new ListView();
+
+        Label classes = new Label("Grades:");
+
+
+        List<String> listOfClasses = classBook.getStudentAssignments(student);
+
+        for (String tempClass : listOfClasses) {
+
+            
+            classGrades.getItems().add(tempClass);
+
+            
+        }
+ 
+        //listClasses.getItems().add("CIS501-1");
+        //listClasses.getItems().add("CIS515-2");
+        //listClasses.getItems().add("CIS614-1");
+        //listClasses.getItems().add("CIS505-2");
+        //listClasses.getSelectionModel().select(0);
+
+ 
+
+        classList = new VBox(classes, classGrades);
+
+        return classList;
+
+    }
+
+    public VBox buildStudentClassList(List<String> classListings, String student) {
+        VBox classList = new VBox();
+
+        //import studentName
+
+        listClasses = new ListView();
 
         Label classes = new Label("Classes:");
 
+
+        List<String> listOfClasses = classListings;
+
+        for (String tempClass : listOfClasses) {
+
+            
+            double dataPoint = classBook.getStudentGPACourse(student, tempClass);
+            if (dataPoint == -1.0) {
+                listClasses.getItems().add(tempClass + " | GPA: " + "not available");
+            } else {
+                listClasses.getItems().add(tempClass + " | GPA: " + dataPoint);
+            }
+
+            
+        }
  
-        listClasses.getItems().add("CIS501-1");
-        listClasses.getItems().add("CIS515-2");
-        listClasses.getItems().add("CIS614-1");
-        listClasses.getItems().add("CIS505-2");
-        listClasses.getSelectionModel().select(0);
+        //listClasses.getItems().add("CIS501-1");
+        //listClasses.getItems().add("CIS515-2");
+        //listClasses.getItems().add("CIS614-1");
+        //listClasses.getItems().add("CIS505-2");
+        //listClasses.getSelectionModel().select(0);
+
+ 
 
         classList = new VBox(classes, listClasses);
 
@@ -487,24 +751,27 @@ public class App extends Application {
 
     }
 
-    public BorderPane buildClassInstancePage() {
+    public BorderPane buildClassInstancePage(String intructorName) {
+        Instructor instructor = classBook.findInstructor(intructorName);
+
         Label lblInstructorName = new Label("Instructor Name: ");
-        Label lblInstructorNameData = new Label("Ben Affleck");
+        Label lblInstructorNameData = new Label(instructor.getInstructorName());
         Label lblContactNum = new Label("Contact #: ");
-        Label lblContactNumData = new Label("000-000-0000");
+        Label lblContactNumData = new Label(instructor.getContactNumber());
         Label lblProgramName = new Label("Program");
         Label lblProgramNameData = new Label("Master of Science");
         Label lblEditInfo = new Label("Edit Info");
         Label lblClass = new Label("Class: " );
         Button btnEditInfo = new Button("Edit Class");
         Label lblContactEmail = new Label("Contact Email: ");
-        Label lblContactEmailData = new Label("ben_affleck@someuniversity.edu");
+        Label lblContactEmailData = new Label(instructor.getContactEmail());
         Label lblClassInfo = new Label(classSelected);
 
         BorderPane classHeader = new BorderPane();
         InputStream stream = null;
         try {
-            stream = new FileInputStream("C:\\Bellevue-Development\\CIS505\\GradeBookApp\\images\\ben_affleck.jpg");
+            stream = new FileInputStream(instructor.getImageUrl());
+            //stream = new FileInputStream("C:\\Bellevue-Development\\CIS505\\GradeBookApp\\images\\ben_affleck.jpg");
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -564,13 +831,13 @@ public class App extends Application {
         classHeader.setLeft(circle);
         classHeader.setCenter(classHeaderHBox);
         //classHeader.setRight(rightBox);
-        
+
 
         BorderPane.setMargin(btnBackClasses, new Insets(12,12,12,12));
 
         BorderPane bp = new BorderPane();
         bp.setTop(classHeader);
-        bp.setCenter(buildClassBody());
+        bp.setCenter(buildClassBody(instructor));
         //bp.setCenter(vbox);
 
         return bp;
@@ -586,11 +853,12 @@ public class App extends Application {
         return classBody;
     }
 
-    public VBox buildStudentRecordBody() {
+    public VBox buildStudentRecordBody(String student) {
         
         //classBody = new HBox(buildAllStudents(), btnOpenStudentRecord);
         //classBody.setPadding(new Insets(15, 12, 15, 12));
-        VBox reportVBox = centerPage(titleBar("Student Record Form"), openStudentSelectedForm());
+        
+        VBox reportVBox = centerPage(titleBar("Student Record Form"), openStudentSelectedForm(student));
         return reportVBox;
     }
     
@@ -601,7 +869,10 @@ public class App extends Application {
 
         Label students = new Label("Students:");
 
- 
+        for (String stud : allStudents) {
+            listStudents.getItems().add(stud);
+        }
+        /*
         listStudents.getItems().add("Test-Student1");
         listStudents.getItems().add("Test-Student2");
         listStudents.getItems().add("Test-Student3");
@@ -616,7 +887,7 @@ public class App extends Application {
         listStudents.getItems().add("Test-Student12");
         listStudents.getItems().add("Test-Student13");
         listStudents.getItems().add("Test-Student14");
-        listStudents.getItems().add("Test-Student15");
+        listStudents.getItems().add("Test-Student15");*/
 
         listStudents.getSelectionModel().select(0);
 
@@ -625,25 +896,28 @@ public class App extends Application {
         return resultsView;
     }
 
-    public HBox buildClassBody() {
+    public HBox buildClassBody(Instructor instructor) {
         HBox classBody = new HBox();
-        classBody = new HBox(buildClassStudents());
+        classBody = new HBox(buildClassStudents(instructor));
 
         return classBody;
     }
 
-    public VBox buildClassStudents() {
+    public VBox buildClassStudents(Instructor instructor) {
         VBox resultsView = new VBox();
         listStudents = new ListView();
 
         Label students = new Label("Students:");
 
+        for (String student : instructor.getClassList()) {
+            listStudents.getItems().add(student);
+        }
  
-        listStudents.getItems().add("Test-Student1");
-        listStudents.getItems().add("Test-Student2");
-        listStudents.getItems().add("Test-Student3");
-        listStudents.getItems().add("Test-Student4");
-        listStudents.getItems().add("Test-Student5");
+        //listStudents.getItems().add("Test-Student1");
+        //listStudents.getItems().add("Test-Student2");
+        //listStudents.getItems().add("Test-Student3");
+        //listStudents.getItems().add("Test-Student4");
+        //listStudents.getItems().add("Test-Student5");
         listStudents.getSelectionModel().select(0);
 
         resultsView = new VBox(students, listStudents);
@@ -669,17 +943,24 @@ public class App extends Application {
         HBox hBox = new HBox();
 
         Label title = new Label("Reports");
+        comboBox = new ComboBox();
 
-
-        title.setPadding(new Insets(15, 300, 15, 12));
+        for (String classNames : classBook.findAllClasses()) {
+            comboBox.getItems().add(classNames);
+        }
+        title.setPrefWidth(200);
+        comboBox.setPadding(new Insets(12,12,12,12));
+        comboBox.setPrefWidth(200);
+        title.setPadding(new Insets(12, 12, 12, 12));
 
         //btnListOpen.setPadding(new Insets(12, 12, 12, 12));
         btnOpenReport.setPadding(new Insets(12,12,12,12));
+        btnOpenReport.setPrefWidth(200);
 
-        hBox.getChildren().addAll(title, btnOpenReport);
+        hBox.getChildren().addAll(title,comboBox, btnOpenReport);
 
-        reportView.getItems().add("Student Eligibility by (Class)");
-        reportView.getItems().add("Student Eligibility by (Student)");
+        //reportView.getItems().add("Student Eligibility by (Class)");
+        //reportView.getItems().add("Student Eligibility by (Student)");
         reportView.getItems().add("GPA Report");
         reportView.getSelectionModel().select(0);
 
@@ -702,15 +983,19 @@ public class App extends Application {
 
         title.setPadding(new Insets(15, 300, 15, 12));
 
+
         btnListOpen.setPadding(new Insets(12, 12, 12, 12));
 
         hBox.getChildren().addAll(title, btnGradeBookOpen);
 
-        listClasses.getItems().add("CIS505-1");
-        listClasses.getItems().add("CIS505-2");
-        listClasses.getItems().add("CIS530-1");
-        listClasses.getItems().add("CIS530-2");
-        listClasses.getItems().add("CIS614-1");
+        for (String classListings : classBook.findAllClasses()) {
+            listClasses.getItems().add(classListings);
+        }
+        //listClasses.getItems().add("CIS505-1");
+        //listClasses.getItems().add("CIS505-2");
+        //listClasses.getItems().add("CIS530-1");
+        //listClasses.getItems().add("CIS530-2");
+        //listClasses.getItems().add("CIS614-1");
 
         listClasses.getSelectionModel().select(0);
 
@@ -725,13 +1010,47 @@ public class App extends Application {
     }
 
     public BorderPane buildGradeBookViewPage() {
-        BorderPane bp = new BorderPane();
-        HBox hbButtons = new HBox();
-        Label gradeBookTitle = new Label(classSelected);
 
-        hbButtons = new HBox(viewGradeBook, addGrade, editGrade, saveGrade);
+        HBox hbButtons = new HBox();
+        gradeBookTitle = new Label(classSelected);
+
+        addGrade.setPadding(new Insets(12, 12, 12, 12));
+        editGrade.setPadding(new Insets(12, 12, 12, 12));
+        saveGrade.setPadding(new Insets(12, 12, 12, 12));
+        editGrade.isDisabled();
+        saveGrade.isDisabled();
+
+        hbButtons = new HBox(addGrade, editGrade, saveGrade);
         bp.setTop(gradeBookTitle);
-        bp.setCenter(hbButtons);
+        bp.setBottom(hbButtons);
+        System.out.println(classSelected);
+       
+        HBox centerScreenView = new HBox();
+        centerScreenView.getChildren().add(buildGradeBookView(classSelected));
+        centerScreenView.setAlignment(Pos.CENTER);
+
+        classLabel = classSelected;
+
+        HBox.setHgrow(centerScreenView, Priority.ALWAYS);
+        bp.setPrefWidth(800);
+        bp.setPrefSize(1000,600);
+        centerScreenView.setPrefWidth(800);
+        centerScreenView.setPrefSize(800,600);
+       // centerScreenView.setPadding(new Insets(12,12,12,12));
+
+        addGrade.setMaxWidth(200);
+        editGrade.setMaxWidth(200);
+        saveGrade.setMaxWidth(200);
+        centerScreenView.setMaxWidth(800);
+        //centerScreenView.setBackground(new Background(new BackgroundFill(Color.RED,CornerRadii.EMPTY,Insets.EMPTY)));
+   
+        HBox.setHgrow(addGrade, Priority.ALWAYS);
+        HBox.setHgrow(editGrade, Priority.ALWAYS);
+        HBox.setHgrow(saveGrade, Priority.ALWAYS);
+        HBox.setHgrow(centerScreenView, Priority.ALWAYS);
+
+        bp.setCenter(centerScreenView);
+ 
 
         return bp;
 
@@ -739,10 +1058,13 @@ public class App extends Application {
 
     public BorderPane buildClassPage() {
         listClasses = new ListView();
+        listClasses.getItems().removeAll();
+
         HBox hBox = new HBox();
 
         Label title = new Label("Classes");
 
+        List<String> instructorClassList = classBook.findAllClasses();
 
         title.setPadding(new Insets(15, 300, 15, 12));
 
@@ -750,11 +1072,14 @@ public class App extends Application {
 
         hBox.getChildren().addAll(title, btnListOpen);
 
-        listClasses.getItems().add("CIS505-1");
-        listClasses.getItems().add("CIS505-2");
-        listClasses.getItems().add("CIS530-1");
-        listClasses.getItems().add("CIS530-2");
-        listClasses.getItems().add("CIS614-1");
+        for (String tempClassList : instructorClassList) {
+            listClasses.getItems().add(tempClassList);
+        }
+        //listClasses.getItems().add("CIS505-1");
+        //listClasses.getItems().add("CIS505-2");
+        //listClasses.getItems().add("CIS530-1");
+        //listClasses.getItems().add("CIS530-2");
+        //listClasses.getItems().add("CIS614-1");
         listClasses.getSelectionModel().select(0);
 
         VBox vbox = new VBox(listClasses);
@@ -768,8 +1093,9 @@ public class App extends Application {
     }
     
     public VBox openStudentForm() {
+        //EDIT ME
 
-        VBox studentVBox = centerPage(titleBar("Student Form"), buildStudentPage());
+        VBox studentVBox = centerPage(titleBar("Student Form"), buildStudentPage("Tony Stark"));
         return studentVBox;
     }
 
@@ -789,6 +1115,11 @@ public class App extends Application {
         return classVBox;
     }
 
+    public VBox openNewGradeForm() {
+        VBox classVBox = centerPage(titleBar("New Grade Form"), addNewGrade());
+        return classVBox;
+    }
+
     public VBox openClassesForm() {
         VBox classVBox = centerPage(titleBar("Class Form"), buildClassPage());
         return classVBox;
@@ -800,7 +1131,7 @@ public class App extends Application {
     }
 
     public VBox openClassInstanceForm() {
-        VBox classVBox = centerPage(titleBar("Class " + classSelected), buildClassInstancePage());
+        VBox classVBox = centerPage(titleBar("Class " + classSelected), buildClassInstancePage(classSelected));
         return classVBox;
     }
 
