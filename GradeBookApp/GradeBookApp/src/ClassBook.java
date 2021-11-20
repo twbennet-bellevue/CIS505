@@ -1,3 +1,7 @@
+/*
+    Bennet, T. (2021). CIS 505 Intermediate Java Programming. Bellevue University
+*/
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -19,6 +23,9 @@ public class ClassBook {
 
     }
 
+    /**
+     * Imports the class book
+     */
     public void importClassBook() {
 
         String filePath = "C:/data/classbook.csv";
@@ -53,6 +60,11 @@ public class ClassBook {
 
     }
 
+
+
+    /**
+     * Imports the gradebook
+     */
     public void importGradeBook() {
 
         String filePath = "C:/data/gradebook.csv";
@@ -68,15 +80,21 @@ public class ClassBook {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) 
         {
  
+            int count = 0;
             String line = "";
             while ((line = br.readLine()) != null) 
             {
-               String[] gradeArray = line.split(",");
+               //if (count != 0) {
+                String[] gradeArray = line.split(",");
 
-               Grade tempGrade = new Grade(gradeArray[0], gradeArray[1] + " " + gradeArray[2], gradeArray[3], gradeArray[4]);
-               //System.out.println("grade: " + tempGrade.getGrade());
-               gradeBook.add(tempGrade);
-               //System.out.println("Grade List " + tempGrade.getAssignmentName());
+                Grade tempGrade = new Grade(gradeArray[0], gradeArray[1] + " " + gradeArray[2], gradeArray[3], gradeArray[4]);
+                //System.out.println("grade: " + tempGrade.getGrade());
+                gradeBook.add(tempGrade);
+                //System.out.println("Grade List " + tempGrade.getAssignmentName());
+               //}
+
+               //count++;
+
             }
             br.close();
         } 
@@ -89,8 +107,34 @@ public class ClassBook {
 
     }
 
-    //public 
 
+    /**
+     * Removes the class assignments from the listing by course
+     * @param course String
+     * @return List<Grade>
+     */
+    public List<Grade> removeClassAssignments(String course) {
+        List<Grade> gradeBookTemp = new ArrayList<Grade>();
+
+        for (Grade grades: gradeBook) {
+            if (!grades.getClassName().equals(course)) {
+                gradeBookTemp.add(grades);
+                System.out.println("out: " + grades.getClassName());
+            }
+
+        }
+
+        gradeBook = gradeBookTemp;
+
+        return gradeBookTemp;
+
+    }
+
+    /**
+     * Gets the Class Assignments by course
+     * @param course String
+     * @return List<String>
+     */
     public List<String> getClassAssignments(String course) {
         List<String> assignments = new ArrayList<String>();
 
@@ -122,7 +166,11 @@ public class ClassBook {
     }
 
     
-
+    /**
+     * Gets the Student Assignments by student
+     * @param student String
+     * @return List<String>
+     */
     public List<String> getStudentAssignments(String student) {
         List<String> assignments = new ArrayList<String>();
 
@@ -152,7 +200,12 @@ public class ClassBook {
         return assignments;
     }
 
-
+    /**
+     * Gets the student GPA by course and student
+     * @param student String
+     * @param course String
+     * @return double
+     */
     public double getStudentGPACourse(String student, String course) {
         double tempGrade = -1.00;
 
@@ -181,6 +234,10 @@ public class ClassBook {
         return count/counter;
     }
 
+    /**
+     * Gets the list of students
+     * @return List<String>
+     */
     public List<String> getStudents() {
 
         for (Student var : studentList) {
@@ -190,6 +247,11 @@ public class ClassBook {
         return students;
     }
 
+    /**
+     * Gets the students by course
+     * @param course String
+     * @return List<String>
+     */
     public List<String> getStudentsByCourse(String course) {
         List<String> courses = new ArrayList<String>();
 
@@ -203,6 +265,9 @@ public class ClassBook {
         return null;
     }
 
+    /**
+     * Import the students 
+     */
     public void importStudents() {
         String filePath = "C:/data/students.csv";
 
@@ -232,10 +297,18 @@ public class ClassBook {
         }
     }
 
+    /**
+     * Sets the class
+     * @param classIn Class
+     */
     public void setClassBook(Class classIn) {
         classBook.add(classIn);
     }
 
+    /**
+     * Finds all classes
+     * @return List<String>
+     */
     public List<String> findAllClasses() {
         System.out.println("Finding Classes");
         uniqueClasses = new ArrayList<String>();
@@ -249,6 +322,11 @@ public class ClassBook {
         return uniqueClasses;
     }
 
+    /**
+     * Finds all classes by students
+     * @param studentName String
+     * @return List<String>
+     */
     public List<String> findStudentClasses(String studentName) {
         System.out.println("Finding instructors");
         List<String> outputClasses = new ArrayList<String>();
@@ -265,6 +343,9 @@ public class ClassBook {
         return outputClasses;
     }
 
+    /**
+     * Find a student object based on the student name
+     */
     public Student findStudent(String studentName) {
 
 
@@ -284,6 +365,11 @@ public class ClassBook {
 
     }
 
+    /**
+     * Find the grades for a course based on the course name
+     * @param course String
+     * @return List<Grade>
+     */
     public List<Grade> findGradesForClass(String course) {
         List<Grade> temp = new ArrayList<Grade>();
 
@@ -297,6 +383,11 @@ public class ClassBook {
         return temp;
     }
 
+    /**
+     * Find the instructor for a course
+     * @param className String
+     * @return Instructor
+     */
     public Instructor findInstructor(String className) {
 
 
@@ -312,20 +403,6 @@ public class ClassBook {
 
         return null;
 
-
-    }
-
-    
-
-    /*public Class findClassBook(String className) {
-        
-
-        for (Class element : classBook) {
-            if (className)
-        }
-    }
-
-*/
-    
+    }    
 
 }
