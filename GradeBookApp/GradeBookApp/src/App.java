@@ -87,6 +87,7 @@ public class App extends Application {
     private Label classes = new Label("Stats");
     private Label gradeBookTitle = new Label ("");
     private Button saveButton = new Button("SAVE");
+    private Button btnClearGrades = new Button("Clear Grades");
 
     private ComboBox student = new ComboBox();
     TextField textAssignment = new TextField("");
@@ -125,11 +126,6 @@ public class App extends Application {
         VBox vboxMain = addVBoxMain();
         border.setCenter(vboxMain);
         vboxMain.setPrefWidth(500);
-        //border.setLeft(addVBox());
-        //addStackPane(hbox);         // Add stack to HBox in top region
-
-       // border.setCenter(addGridPane());
-        //border.setRight(addFlowPane());
         
         btnStudents.setOnAction(new EventHandler<ActionEvent>(){
   
@@ -138,6 +134,21 @@ public class App extends Application {
                 border.setCenter(null);
                 border.setCenter(openStudentForm());
     
+            }
+        });
+
+        btnClearGrades.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                List<Grade> tempGrades = new ArrayList<Grade>();
+                System.out.println("Seelected Class" + classSelected);
+                tempGrades = classBook.removeClassAssignments(classSelected);
+
+                GradeBook save = new GradeBook();
+                save.SaveGrades(tempGrades);
+
+                border.setCenter(openGradeBookViewForm());
+
             }
         });
 
@@ -223,10 +234,8 @@ public class App extends Application {
                     case "D": gpaResult = ".67"; break;
                     case "F": gpaResult = ".65"; break;
                 }
-                System.out.println("CIS501-1" + name[0] + name[1] + " | Assignment " + textAssignment.getText().toString() + " | GPA Label : " + gpaResult);
-                //saveBookItem.SaveGrade(classLabel, name[0], name[1], assignmentLabel, gpaResult);
-                //saveBookItem.SaveGrade("CIS501-1", "Tony", "Stark", "Test", ".85");
-                saveBookItem.SaveGrade("CIS501-1", name[0], name[1], textAssignment.getText().toString(), gpaResult);
+                System.out.println(gradeBookTitle.getText().toString() + name[0] + name[1] + " | Assignment " + textAssignment.getText().toString() + " | GPA Label : " + gpaResult);
+                saveBookItem.SaveGrade(gradeBookTitle.getText().toString(), name[0], name[1], textAssignment.getText().toString(), gpaResult);
 
                 border.setCenter(openGradeBookViewForm());
     
@@ -330,12 +339,6 @@ public class App extends Application {
         hbox.setSpacing(10);
         hbox.setStyle("-fx-background-color: #336699;");
         
-
-        //Button buttonCurrent = new Button("Current");
-        //buttonCurrent.setPrefSize(100, 20);
-    
-        //Button buttonProjected = new Button("Projected");
-        //buttonProjected.setPrefSize(100, 20);
         hbox.getChildren().addAll(inHBox);
     
         return hbox;
@@ -427,7 +430,6 @@ public class App extends Application {
         yAxis.setLabel("Returns to date");
         bc.setTitle("GPA Bar Chart by Class");
 
-        //comboBox.getItems().add(classNames);
         //get gpa results studdent, by gpa
         List<Grade> tempGrades = classBook.findGradesForClass(course);
 
@@ -438,17 +440,6 @@ public class App extends Application {
         for (Grade gradeList : tempGrades) {
             series1.getData().add(new XYChart.Data(gradeList.getStudentName(), gradeList.getGrade()));
         }
-
-        //series1.getData().add(new XYChart.Data(4.0, 4.0));
-        //series1.getData().add(new XYChart.Data(2.8, 2.8));
-        //series1.getData().add(new XYChart.Data(6.2, 24.8));
-        //series1.getData().add(new XYChart.Data(1, 14));
-        //series1.getData().add(new XYChart.Data(1.2, 26.4));
-        //series1.getData().add(new XYChart.Data(3.4, 3));
-        //series1.getData().add(new XYChart.Data(2.9, 3));
-        //series1.getData().add(new XYChart.Data(3.5, 1));
-        ///series1.getData().add(new XYChart.Data(3.6, 7));
-        //series1.getData().add(new XYChart.Data(3.2, 12));
 
         bc.getData().addAll(series1);
         
@@ -503,10 +494,8 @@ public class App extends Application {
 
         BorderPane classHeader = new BorderPane();
         InputStream stream = null;
-        //classSelected = listClasses.getSelectionModel().getSelectedItem().toString();
 
         try {
-            //stream = new FileInputStream("C:\\Bellevue-Development\\CIS505\\GradeBookApp\\images\\person-icon.png");
             stream = new FileInputStream(studentIn.getImageUrl());
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
@@ -529,7 +518,7 @@ public class App extends Application {
         
         VBox centerBox = new VBox();
         VBox rightBox = new VBox();
-        //classLblBox = new HBox(lblClass, lblClassInfo);
+
         classLblContact = new HBox(lblContactNum, lblContactNumData);
         classLblEmail = new HBox(lblContactEmail, lblContactEmailData);
         classInstructorHBox = new HBox(lblStudentName, lblStudentNameData);
@@ -537,15 +526,11 @@ public class App extends Application {
 
         centerBox = new VBox(classLblBox, classInstructorHBox, classLblContact,classLblEmail);
         centerBox.setPadding(new Insets(12, 12, 12, 12));
-        //rightBox.setPadding(new Insets(12, 12, 12, 12));
-        //rightBox = new VBox(classInstructorHBox);
+
         classHeaderHBox = new HBox(centerBox);
         centerBox.setAlignment(Pos.CENTER);
         BorderPane.setAlignment(centerBox, Pos.CENTER);
 
-
-
-        //Button back = new Button("Back");
         btnBackStudents.setPrefSize(100,20);
         btnEditInfo.setPrefSize(100,20);
         btnBackStudents.setPadding(new Insets(12, 12, 12, 12));
@@ -555,11 +540,7 @@ public class App extends Application {
         Circle circle = new Circle(100);
         ImagePattern pattern = new ImagePattern(img);
         circle.setFill(pattern);
-        //System.out.println("Test:" + getClass().getResource("ben_affleck.jpg").toString());
-        //images\ben_affleck.jpg
         ImageView image = new ImageView(img);
-        //image.setX(10);
-        //image.setY(10);
 
         HBox navigationStudentForm = new HBox();
         navigationStudentForm = new HBox(btnBackStudents);
@@ -569,8 +550,6 @@ public class App extends Application {
         classHeader.setBottom(navigationStudentForm);
         classHeader.setLeft(circle);
         classHeader.setCenter(classHeaderHBox);
-        //classHeader.setRight(rightBox);
-        
 
         BorderPane.setMargin(btnBackStudents, new Insets(12,12,12,12));
 
@@ -580,14 +559,10 @@ public class App extends Application {
         List<String> listOfClasses = classBook.findStudentClasses(studentName);
 
         bp.setCenter(buildStudentClassBody(listOfClasses, studentSelected));
-        //bp.setCenter(vbox);
 
         return bp;
     }
 
-    /*public HBox buildGradeBookBody() {
-
-    }*/
 
     public HBox buildGradeBookView(String course) {
         List<String> gradeBook = new ArrayList<String>();
@@ -603,8 +578,7 @@ public class App extends Application {
         HBox bodyView = new HBox(view);
         bodyView.setMaxWidth(800);
         view.setPrefWidth(800);
-        //bodyView.setBackground(new Background(new BackgroundFill(Color.WHITE,CornerRadii.EMPTY,Insets.EMPTY)));
-  
+
         return bodyView;
     }
 
@@ -619,63 +593,14 @@ public class App extends Application {
     public VBox buildStudentClassResults(String course, String student) {
         VBox classList = new VBox();
 
-        
-
-        //Label classes = new Label("CIS505-1 - Class Statistics:");
-        //import class statistic
-        //setClassResults(course, student);
-
         listClassResults.setFocusTraversable(false);
-        //listClassResults.setMouseTransparent(true);
-        
-
-        //double gpaResult = classBook.getStudentGPACourse(studentSelected, course);
-
-        //listClassResults.getItems().add("Student Grade: " + gpaResult);
-        //listClassResults.getItems().add("Class GPA (Average): 3.222");
-        //listClassResults.getItems().add("Class GPA (High): 4.0");
-        //listClassResults.getItems().add("Class GPA (Low): 2.8");
-
-                
-        /*listClasses.getSelectionModel().selectedItemProperty().addListener(
-            new ChangeListener<String>() {
-                public void changed(ObservableValue<? extends String> observable, String oldvalue, String newValue) {
-                    System.out.println("selection changed");
-                    //buildStudentClassResults(listClasses.getSelectionModel().getSelectedItem().toString(), studentSelected);
-                    
-                    setClassResults(listClasses.getSelectionModel().getSelectedItem().toString(), studentSelected);
-                    
-            }
-        });*/
-
         classList = new VBox(classes, listClassResults);
 
         return classList;
     }
 
     public void setClassResults(String course, String student) {
-        /*System.out.println("Class Results changed");
-        System.out.println("Student " + studentSelected + " - course " + course + " grade:" + classBook.getStudentGPACourse(studentSelected, course));
-        classes.setText("Grades" + course);
 
-        String gpaResultStr = "";*/
-
-        /*if (gpaResult == -1.00) {
-            gpaResultStr = "N/A";
-        } else {
-            gpaResultStr = "" + gpaResult;
-        } 
-
-        //listClassResults = new ListView();
-        //listClassResultsIn.getSelectionModel().getSelectedItems().removeAll();
-        //listClassResultsIn.refresh();*/
-
-        //listClassResults.getSelectionModel().getSelectedItems().removeAll();
-        //listClassResults.getItems().add("Student Grade: " + 0.0);
-        //listClassResults.getItems().add("Class GPA (Average): 3.222");
-        //listClassResults.getItems().add("Class GPA (High): 4.0");
-        //listClassResults.getItems().add("Class GPA (Low): 2.8");
-        //.refresh();
     }
 
     public VBox buildStudentClassGrades(String student) {
@@ -691,20 +616,9 @@ public class App extends Application {
         List<String> listOfClasses = classBook.getStudentAssignments(student);
 
         for (String tempClass : listOfClasses) {
-
-            
             classGrades.getItems().add(tempClass);
-
-            
+   
         }
- 
-        //listClasses.getItems().add("CIS501-1");
-        //listClasses.getItems().add("CIS515-2");
-        //listClasses.getItems().add("CIS614-1");
-        //listClasses.getItems().add("CIS505-2");
-        //listClasses.getSelectionModel().select(0);
-
- 
 
         classList = new VBox(classes, classGrades);
 
@@ -716,11 +630,9 @@ public class App extends Application {
         VBox classList = new VBox();
 
         //import studentName
-
         listClasses = new ListView();
 
         Label classes = new Label("Classes:");
-
 
         List<String> listOfClasses = classListings;
 
@@ -737,14 +649,6 @@ public class App extends Application {
             
         }
  
-        //listClasses.getItems().add("CIS501-1");
-        //listClasses.getItems().add("CIS515-2");
-        //listClasses.getItems().add("CIS614-1");
-        //listClasses.getItems().add("CIS505-2");
-        //listClasses.getSelectionModel().select(0);
-
- 
-
         classList = new VBox(classes, listClasses);
 
         return classList;
@@ -771,9 +675,7 @@ public class App extends Application {
         InputStream stream = null;
         try {
             stream = new FileInputStream(instructor.getImageUrl());
-            //stream = new FileInputStream("C:\\Bellevue-Development\\CIS505\\GradeBookApp\\images\\ben_affleck.jpg");
         } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 
@@ -802,15 +704,10 @@ public class App extends Application {
 
         centerBox = new VBox(classLblBox, classInstructorHBox, classLblContact,classLblEmail);
         centerBox.setPadding(new Insets(12, 12, 12, 12));
-        //rightBox.setPadding(new Insets(12, 12, 12, 12));
-        //rightBox = new VBox(classInstructorHBox);
         classHeaderHBox = new HBox(centerBox);
         centerBox.setAlignment(Pos.CENTER);
         BorderPane.setAlignment(centerBox, Pos.CENTER);
 
-
-
-        //Button back = new Button("Back");
         btnBackClasses.setPrefSize(100,20);
         btnEditInfo.setPrefSize(100,20);
         btnBackClasses.setPadding(new Insets(12, 12, 12, 12));
@@ -820,44 +717,30 @@ public class App extends Application {
         Circle circle = new Circle(100);
         ImagePattern pattern = new ImagePattern(img);
         circle.setFill(pattern);
-        //System.out.println("Test:" + getClass().getResource("ben_affleck.jpg").toString());
-        //images\ben_affleck.jpg
         ImageView image = new ImageView(img);
-        //image.setX(10);
-        //image.setY(10);
         image.setFitWidth(175);
         image.setFitHeight(175);
         classHeader.setBottom(btnBackClasses);
         classHeader.setLeft(circle);
         classHeader.setCenter(classHeaderHBox);
-        //classHeader.setRight(rightBox);
-
 
         BorderPane.setMargin(btnBackClasses, new Insets(12,12,12,12));
 
         BorderPane bp = new BorderPane();
         bp.setTop(classHeader);
         bp.setCenter(buildClassBody(instructor));
-        //bp.setCenter(vbox);
 
         return bp;
     }
 
     public BorderPane buildAllClassBody() {
         BorderPane classBody = new BorderPane();
-        
-        //classBody = new HBox(buildAllStudents(), btnOpenStudentRecord);
-        //classBody.setPadding(new Insets(15, 12, 15, 12));
         classBody.setLeft(buildAllStudents());
         classBody.setCenter(btnOpenStudentRecord);
         return classBody;
     }
 
     public VBox buildStudentRecordBody(String student) {
-        
-        //classBody = new HBox(buildAllStudents(), btnOpenStudentRecord);
-        //classBody.setPadding(new Insets(15, 12, 15, 12));
-        
         VBox reportVBox = centerPage(titleBar("Student Record Form"), openStudentSelectedForm(student));
         return reportVBox;
     }
@@ -872,22 +755,6 @@ public class App extends Application {
         for (String stud : allStudents) {
             listStudents.getItems().add(stud);
         }
-        /*
-        listStudents.getItems().add("Test-Student1");
-        listStudents.getItems().add("Test-Student2");
-        listStudents.getItems().add("Test-Student3");
-        listStudents.getItems().add("Test-Student4");
-        listStudents.getItems().add("Test-Student5");
-        listStudents.getItems().add("Test-Student6");
-        listStudents.getItems().add("Test-Student7");
-        listStudents.getItems().add("Test-Student8");
-        listStudents.getItems().add("Test-Student9");
-        listStudents.getItems().add("Test-Student10");
-        listStudents.getItems().add("Test-Student11");
-        listStudents.getItems().add("Test-Student12");
-        listStudents.getItems().add("Test-Student13");
-        listStudents.getItems().add("Test-Student14");
-        listStudents.getItems().add("Test-Student15");*/
 
         listStudents.getSelectionModel().select(0);
 
@@ -912,12 +779,6 @@ public class App extends Application {
         for (String student : instructor.getClassList()) {
             listStudents.getItems().add(student);
         }
- 
-        //listStudents.getItems().add("Test-Student1");
-        //listStudents.getItems().add("Test-Student2");
-        //listStudents.getItems().add("Test-Student3");
-        //listStudents.getItems().add("Test-Student4");
-        //listStudents.getItems().add("Test-Student5");
         listStudents.getSelectionModel().select(0);
 
         resultsView = new VBox(students, listStudents);
@@ -952,15 +813,10 @@ public class App extends Application {
         comboBox.setPadding(new Insets(12,12,12,12));
         comboBox.setPrefWidth(200);
         title.setPadding(new Insets(12, 12, 12, 12));
-
-        //btnListOpen.setPadding(new Insets(12, 12, 12, 12));
         btnOpenReport.setPadding(new Insets(12,12,12,12));
         btnOpenReport.setPrefWidth(200);
 
         hBox.getChildren().addAll(title,comboBox, btnOpenReport);
-
-        //reportView.getItems().add("Student Eligibility by (Class)");
-        //reportView.getItems().add("Student Eligibility by (Student)");
         reportView.getItems().add("GPA Report");
         reportView.getSelectionModel().select(0);
 
@@ -991,11 +847,6 @@ public class App extends Application {
         for (String classListings : classBook.findAllClasses()) {
             listClasses.getItems().add(classListings);
         }
-        //listClasses.getItems().add("CIS505-1");
-        //listClasses.getItems().add("CIS505-2");
-        //listClasses.getItems().add("CIS530-1");
-        //listClasses.getItems().add("CIS530-2");
-        //listClasses.getItems().add("CIS614-1");
 
         listClasses.getSelectionModel().select(0);
 
@@ -1015,12 +866,8 @@ public class App extends Application {
         gradeBookTitle = new Label(classSelected);
 
         addGrade.setPadding(new Insets(12, 12, 12, 12));
-        editGrade.setPadding(new Insets(12, 12, 12, 12));
-        saveGrade.setPadding(new Insets(12, 12, 12, 12));
-        editGrade.isDisabled();
-        saveGrade.isDisabled();
-
-        hbButtons = new HBox(addGrade, editGrade, saveGrade);
+        btnClearGrades.setPadding(new Insets(12,12,12,12));
+        hbButtons = new HBox(addGrade, btnClearGrades);
         bp.setTop(gradeBookTitle);
         bp.setBottom(hbButtons);
         System.out.println(classSelected);
@@ -1036,17 +883,14 @@ public class App extends Application {
         bp.setPrefSize(1000,600);
         centerScreenView.setPrefWidth(800);
         centerScreenView.setPrefSize(800,600);
-       // centerScreenView.setPadding(new Insets(12,12,12,12));
 
         addGrade.setMaxWidth(200);
-        editGrade.setMaxWidth(200);
-        saveGrade.setMaxWidth(200);
+        btnClearGrades.setMaxWidth(200);
         centerScreenView.setMaxWidth(800);
-        //centerScreenView.setBackground(new Background(new BackgroundFill(Color.RED,CornerRadii.EMPTY,Insets.EMPTY)));
    
         HBox.setHgrow(addGrade, Priority.ALWAYS);
-        HBox.setHgrow(editGrade, Priority.ALWAYS);
-        HBox.setHgrow(saveGrade, Priority.ALWAYS);
+        HBox.setHgrow(btnClearGrades, Priority.ALWAYS);
+
         HBox.setHgrow(centerScreenView, Priority.ALWAYS);
 
         bp.setCenter(centerScreenView);
@@ -1075,11 +919,6 @@ public class App extends Application {
         for (String tempClassList : instructorClassList) {
             listClasses.getItems().add(tempClassList);
         }
-        //listClasses.getItems().add("CIS505-1");
-        //listClasses.getItems().add("CIS505-2");
-        //listClasses.getItems().add("CIS530-1");
-        //listClasses.getItems().add("CIS530-2");
-        //listClasses.getItems().add("CIS614-1");
         listClasses.getSelectionModel().select(0);
 
         VBox vbox = new VBox(listClasses);
@@ -1093,8 +932,6 @@ public class App extends Application {
     }
     
     public VBox openStudentForm() {
-        //EDIT ME
-
         VBox studentVBox = centerPage(titleBar("Student Form"), buildStudentPage("Tony Stark"));
         return studentVBox;
     }
@@ -1144,7 +981,6 @@ public class App extends Application {
         lblBodyMain.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
         lblBodyMain.setTextFill(Color.BLACK);
         lblBodyMain.setPadding(new Insets(15, 12, 15, 12));
-        //lblBodyMain.setAlignment(Pos.CENTER);
         lblBodyMain.setTextAlignment(TextAlignment.CENTER);
         vbox.setAlignment(Pos.BASELINE_LEFT);
 
@@ -1170,8 +1006,6 @@ public class App extends Application {
         lblBodyOption3.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 12));
         lblBodyOption3.setTextFill(Color.BLACK);
 
-
-        //vbox.getChildren().addAll(btnStudents, btnReports, btnClasses);
         vbox.getChildren().addAll(lblBodyMain, lblBodyMainDescription, lblBodyMainDescriptionOptions, lblBodyOption1, lblBodyOption2, lblBodyOption3);
         return vbox;
     }
